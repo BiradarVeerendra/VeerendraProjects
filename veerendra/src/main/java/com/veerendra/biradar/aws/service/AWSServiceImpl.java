@@ -139,4 +139,17 @@ public class AWSServiceImpl implements AWSService {
         }
     }
 
+    @Override
+    public void deleteS3File(String objectKey) throws VeerAppException {
+        try {
+            awsManager.awsS3Client().deleteObject(commonBucketName, objectKey);
+        }catch (VeerAppException e){
+            LOG.error("VeerAppException ", e);
+            throw VeerAppException.catchVeerAppError(e);
+        } catch (Exception e){
+            LOG.error("Exception ", e);
+            throw VeerAppException.standardError();
+        }
+    }
+
 }

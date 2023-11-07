@@ -9,4 +9,6 @@ public interface AWSService {
     String generatePresignedUrl(String objectKey) throws VeerAppException;
 
     void downloadAS3File(String objectKey) throws VeerAppException;
+
+    void deleteS3File(String objectKey) throws VeerAppException;
 }

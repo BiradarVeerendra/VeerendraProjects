@@ -1,5 +1,7 @@
 package com.veerendra.biradar.aws.controller;
 
+import com.veerendra.biradar.api_req_res.response.ResponseDTO;
+import com.veerendra.biradar.api_req_res.response.VeerAppResponseBody;
 import com.veerendra.biradar.aws.dto.AWSUploadRequest;
 import com.veerendra.biradar.aws.service.AWSService;
 import com.veerendra.biradar.exception.VeerAppException;
@@ -22,41 +24,58 @@ public class AWSController {
     AWSService awsService;
 
     @RequestMapping(value = "/aws/s3/upload-data", method = RequestMethod.POST)
-    public void uploadDataToS3(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
+    public ResponseDTO uploadDataToS3(@RequestBody AWSUploadRequest awsUploadRequest) {
         try {
             awsService.uploadFileToS3(awsUploadRequest.getData());
+            return VeerAppResponseBody.successResponse(new ArrayList<>());
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while uploading the given data to S3", e);
-            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+            return VeerAppResponseBody.internalServerError(e.getMessage());
         } catch (Exception e) {
             LOG.error("Exception while uploading the given data to S3", e);
-            throw VeerAppException.standardError();
+            return VeerAppResponseBody.standardError(e.getMessage());
         }
     }
 
     @RequestMapping(value = "/aws/s3/get-pre-signed-url", method = RequestMethod.POST)
-    public String generatePresignedUrl(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
+    public ResponseDTO generatePresignedUrl(@RequestBody AWSUploadRequest awsUploadRequest) {
         try {
-            return awsService.generatePresignedUrl(awsUploadRequest.getObjectKey());
+            String presignedUrl = awsService.generatePresignedUrl(awsUploadRequest.getObjectKey());
+            return VeerAppResponseBody.successResponse(presignedUrl);
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while generating pre-signed-url", e);
-            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+            return VeerAppResponseBody.internalServerError(e.getMessage());
         } catch (Exception e) {
             LOG.error("Exception while pre-signed-url ", e);
-            throw VeerAppException.standardError();
+            return VeerAppResponseBody.standardError(e.getMessage());
         }
     }
 
     @RequestMapping(value = "/aws/s3/download-file", method = RequestMethod.POST)
-    public void downloadS3File(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
+    public ResponseDTO downloadS3File(@RequestBody AWSUploadRequest awsUploadRequest) {
         try {
             awsService.downloadAS3File(awsUploadRequest.getObjectKey());
+            return VeerAppResponseBody.successResponse(new ArrayList<>());
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while downloading s3-file", e);
-            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+            return VeerAppResponseBody.internalServerError(e.getMessage());
         } catch (Exception e) {
             LOG.error("Exception while downloading s3-file", e);
-            throw VeerAppException.standardError();
+            return VeerAppResponseBody.standardError(e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/aws/s3/delete-file", method = RequestMethod.POST)
+    public ResponseDTO deleteS3File(@RequestBody AWSUploadRequest awsUploadRequest) {
+        try {
+            awsService.deleteS3File(awsUploadRequest.getObjectKey());
+            return VeerAppResponseBody.successResponse(new ArrayList<>());
+        } catch (VeerAppException e) {
+            LOG.error("VeerAppException while downloading s3-file", e);
+            return VeerAppResponseBody.internalServerError(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Exception while downloading s3-file", e);
+            return VeerAppResponseBody.standardError(e.getMessage());
         }
     }
 }
