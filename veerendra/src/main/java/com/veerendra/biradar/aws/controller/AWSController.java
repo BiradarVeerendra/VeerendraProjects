@@ -21,7 +21,7 @@ public class AWSController {
     @Autowired
     AWSService awsService;
 
-    @RequestMapping(value = "/aws/s3/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/aws/s3/upload-data", method = RequestMethod.POST)
     public void uploadDataToS3(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
         try {
             awsService.uploadFileToS3(awsUploadRequest.getData());
@@ -30,6 +30,19 @@ public class AWSController {
             throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
         } catch (Exception e) {
             LOG.error("Exception while uploading the given data to S3", e);
+            throw VeerAppException.standardError();
+        }
+    }
+
+    @RequestMapping(value = "/aws/s3/get-pre-signed-url", method = RequestMethod.POST)
+    public String generatePresignedUrl(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
+        try {
+            return awsService.generatePresignedUrl(awsUploadRequest.getObjectKey());
+        } catch (VeerAppException e) {
+            LOG.error("VeerAppException while generating pre-signed-url", e);
+            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+        } catch (Exception e) {
+            LOG.error("Exception while pre-signed-url ", e);
             throw VeerAppException.standardError();
         }
     }

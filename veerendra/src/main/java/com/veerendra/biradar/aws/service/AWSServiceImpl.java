@@ -1,9 +1,9 @@
 package com.veerendra.biradar.aws.service;
 
+import com.amazonaws.HttpMethod;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.veerendra.biradar.aws.controller.AWSController;
+import com.amazonaws.services.s3.model.*;
 import com.veerendra.biradar.aws.manager.AWSManager;
 import com.veerendra.biradar.exception.VeerAppException;
 import com.veerendra.biradar.log.AppLog;
@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AWSServiceImpl implements AWSService {
@@ -25,24 +28,44 @@ public class AWSServiceImpl implements AWSService {
 
     @Value("${aws.commonBucketName}")
     String commonBucketName;
-    @Autowired
-    AWSManager manager;
 
+    @Autowired
+    AWSManager awsManager;
+
+    /**
+     * Upload String data to s3
+     */
     @Override
     public void uploadFileToS3(String data) throws VeerAppException {
 
         try {
-            AmazonS3 s3Client = manager.awsS3Client();
+            /*Create Amazon S3 client*/
+            AmazonS3 s3Client = awsManager.awsS3Client();
 
+            /*String data to input stream*/
             byte[] fileContentByte = data.getBytes(StandardCharsets.UTF_8);
             InputStream fileInputStream = new ByteArrayInputStream(fileContentByte);
+
+            /*Set meta data*/
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(fileContentByte.length);
 
+            /*S3 object key*/
             String objectKey = "Veerendra/" + LocalDate.now() + "/" + LocalTime.now() + "/testFile.json";
-            s3Client.putObject(new PutObjectRequest(
+
+            /*Here the data/file/attachment will be stored to S3*/
+            PutObjectRequest request = new PutObjectRequest(
                     commonBucketName, objectKey, fileInputStream, metadata
-            ));
+            );
+
+            /*Adding Tag details of an attachment*/
+            List<Tag> tags = new ArrayList<>();
+            tags.add(new Tag("type", "attachment"));
+            tags.add(new Tag("subtype", "xyzDocument"));
+            request.setTagging(new ObjectTagging(tags));
+
+            /*upload data to s3*/
+            s3Client.putObject(request);
 
         } catch (VeerAppException e) {
             throw VeerAppException.catchVeerAppError(e);
@@ -51,4 +74,38 @@ public class AWSServiceImpl implements AWSService {
         }
     }
 
+    /**
+     * Generate pre-signed-url from given object key
+     *
+     * @return
+     */
+    @Override
+    public String generatePresignedUrl(String objectKey) throws VeerAppException {
+
+        try {
+            //Optional* Set the pre-signed-url to expire after five hour.
+            java.util.Date expiration = new java.util.Date();
+            long expTimeMillis = expiration.getTime();
+            expTimeMillis += 5000 * 60 * 60;
+            expiration.setTime(expTimeMillis);
+
+            //Generate the pre-signed-url.
+            URL url = awsManager.awsS3Client().generatePresignedUrl(new GeneratePresignedUrlRequest(commonBucketName, objectKey)
+                    .withMethod(HttpMethod.GET)
+                    .withExpiration(expiration));
+
+            //return url.toString();
+            LOG.info("pre-signed-url is=" + url);
+            return url.toExternalForm();
+        } catch (SdkClientException e) {
+            LOG.error("SdkClientException ", e);
+            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+        } catch (VeerAppException e) {
+            LOG.error("VeerAppException ", e);
+            throw VeerAppException.catchVeerAppError(e);
+        } catch (Exception e) {
+            LOG.error("Exception ", e);
+            throw VeerAppException.standardError();
+        }
+    }
 }
