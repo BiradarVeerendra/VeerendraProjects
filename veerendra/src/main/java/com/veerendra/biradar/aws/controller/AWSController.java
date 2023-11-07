@@ -47,7 +47,7 @@ public class AWSController {
         }
     }
 
-    @RequestMapping(value = "/aws/s3/get-pre-signed-url", method = RequestMethod.POST)
+    @RequestMapping(value = "/aws/s3/download-file", method = RequestMethod.POST)
     public void downloadS3File(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
         try {
             awsService.downloadAS3File(awsUploadRequest.getObjectKey());
