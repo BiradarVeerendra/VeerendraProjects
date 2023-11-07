@@ -8,11 +8,14 @@ import com.veerendra.biradar.aws.manager.AWSManager;
 import com.veerendra.biradar.exception.VeerAppException;
 import com.veerendra.biradar.log.AppLog;
 import com.veerendra.biradar.log.AppLogger;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -108,4 +111,32 @@ public class AWSServiceImpl implements AWSService {
             throw VeerAppException.standardError();
         }
     }
+
+    @Autowired
+    public void downloadAS3File(String objectKey) throws VeerAppException {
+
+        try {
+            S3Object s3object = awsManager.awsS3Client().getObject(commonBucketName, objectKey);
+            S3ObjectInputStream inputStream = s3object.getObjectContent();
+            File file = new File("veerendra.extension");
+            FileUtils.copyInputStreamToFile(inputStream, file);
+
+            /*FileUtils.copyInputStreamToFile(
+                    awsManager.awsS3Client()
+                            .getObject(commonBucketName, objectKey)
+                            .getObjectContent(),
+                    new File("veerendra.extension")
+            );*/
+        } catch (IOException e) {
+            LOG.error("IOException ", e);
+            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+        } catch (VeerAppException e){
+            LOG.error("VeerAppException ", e);
+            throw VeerAppException.catchVeerAppError(e);
+        } catch (Exception e){
+            LOG.error("Exception ", e);
+            throw VeerAppException.standardError();
+        }
+    }
+
 }

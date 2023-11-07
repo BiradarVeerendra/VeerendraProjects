@@ -46,4 +46,17 @@ public class AWSController {
             throw VeerAppException.standardError();
         }
     }
+
+    @RequestMapping(value = "/aws/s3/get-pre-signed-url", method = RequestMethod.POST)
+    public void downloadS3File(@RequestBody AWSUploadRequest awsUploadRequest) throws VeerAppException {
+        try {
+            awsService.downloadAS3File(awsUploadRequest.getObjectKey());
+        } catch (VeerAppException e) {
+            LOG.error("VeerAppException while downloading s3-file", e);
+            throw VeerAppException.internalServerError(e.getMessage(), new ArrayList<>());
+        } catch (Exception e) {
+            LOG.error("Exception while downloading s3-file", e);
+            throw VeerAppException.standardError();
+        }
+    }
 }
