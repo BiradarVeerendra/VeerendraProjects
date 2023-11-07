@@ -3,8 +3,11 @@ package com.veerendra.biradar.aws.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.veerendra.biradar.aws.controller.AWSController;
 import com.veerendra.biradar.aws.manager.AWSManager;
 import com.veerendra.biradar.exception.VeerAppException;
+import com.veerendra.biradar.log.AppLog;
+import com.veerendra.biradar.log.AppLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,8 @@ import java.time.LocalTime;
 
 @Service
 public class AWSServiceImpl implements AWSService {
+
+    AppLog LOG = AppLogger.getAppLog(AWSServiceImpl.class);
 
     @Value("${aws.commonBucketName}")
     String commonBucketName;
