@@ -112,13 +112,13 @@ public class AWSServiceImpl implements AWSService {
         }
     }
 
-    @Autowired
+    @Override
     public void downloadAS3File(String objectKey) throws VeerAppException {
 
         try {
             S3Object s3object = awsManager.awsS3Client().getObject(commonBucketName, objectKey);
             S3ObjectInputStream inputStream = s3object.getObjectContent();
-            File file = new File("veerendra.extension");
+            File file = new File("veerendra.txt");
             FileUtils.copyInputStreamToFile(inputStream, file);
 
             /*FileUtils.copyInputStreamToFile(
