@@ -30,7 +30,7 @@ public class AWSController {
             return VeerAppResponseBody.successResponse(new ArrayList<>());
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while uploading the given data to S3", e);
-            return VeerAppResponseBody.internalServerError(e.getMessage());
+            return VeerAppResponseBody.catchVeerAppError(e);
         } catch (Exception e) {
             LOG.error("Exception while uploading the given data to S3", e);
             return VeerAppResponseBody.standardError(e.getMessage());
@@ -40,11 +40,11 @@ public class AWSController {
     @RequestMapping(value = "/aws/s3/get-pre-signed-url", method = RequestMethod.POST)
     public ResponseDTO generatePresignedUrl(@RequestBody AWSUploadRequest awsUploadRequest) {
         try {
-            String presignedUrl = awsService.generatePresignedUrl(awsUploadRequest.getObjectKey());
-            return VeerAppResponseBody.successResponse(presignedUrl);
+            String preSignedUrl = awsService.generatePresignedUrl(awsUploadRequest.getObjectKey());
+            return VeerAppResponseBody.successResponse(preSignedUrl);
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while generating pre-signed-url", e);
-            return VeerAppResponseBody.internalServerError(e.getMessage());
+            return VeerAppResponseBody.catchVeerAppError(e);
         } catch (Exception e) {
             LOG.error("Exception while pre-signed-url ", e);
             return VeerAppResponseBody.standardError(e.getMessage());
@@ -58,7 +58,7 @@ public class AWSController {
             return VeerAppResponseBody.successResponse(new ArrayList<>());
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while downloading s3-file", e);
-            return VeerAppResponseBody.internalServerError(e.getMessage());
+            return VeerAppResponseBody.catchVeerAppError(e);
         } catch (Exception e) {
             LOG.error("Exception while downloading s3-file", e);
             return VeerAppResponseBody.standardError(e.getMessage());
@@ -72,7 +72,7 @@ public class AWSController {
             return VeerAppResponseBody.successResponse(new ArrayList<>());
         } catch (VeerAppException e) {
             LOG.error("VeerAppException while downloading s3-file", e);
-            return VeerAppResponseBody.internalServerError(e.getMessage());
+            return VeerAppResponseBody.catchVeerAppError(e);
         } catch (Exception e) {
             LOG.error("Exception while downloading s3-file", e);
             return VeerAppResponseBody.standardError(e.getMessage());
