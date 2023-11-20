@@ -33,6 +33,10 @@ public final class VeerAppException extends Exception {
         return new VeerAppException(e.getStatusCode(), e.getStatusMessage(), e.getResult());
     }
 
+    public static VeerAppException dataInsertUpdateError(String message, Object object){
+        return new VeerAppException(100, message, object);
+    }
+
     public int getStatusCode() {
         return statusCode;
     }
