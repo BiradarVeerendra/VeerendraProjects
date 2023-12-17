@@ -5,9 +5,15 @@ import com.veerendra.biradar.log.AppLogger;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MultithreadingServivce {
+public class MultithreadingService {
 
-    AppLog LOG = AppLogger.getAppLog(MultithreadingServivce.class);
+    AppLog LOG = AppLogger.getAppLog(MultithreadingService.class);
+
+    private static int count=0;
+
+    private static synchronized void counter(){
+        count++;
+    }
 
     public void workersThread(){
 
@@ -85,6 +91,44 @@ public class MultithreadingServivce {
 
         LOG.info("Before thread starts");
 
+
+    }
+
+    public void synchronizedBlock() {
+
+        LOG.info("synchronizedBlock() before thread starts");
+        Thread t1 = new Thread(() -> {
+            for (int i=0; i<100; i++){
+                counter();
+            }
+        });
+
+        Thread t2 = new Thread(() -> {
+            for (int i=0; i<100; i++){
+                counter();
+            }
+        });
+
+        Thread t3 = new Thread(() -> {
+            for (int i=0; i<100; i++){
+                counter();
+            }
+        });
+
+        t1.start();
+        t2.start();
+        t3.start();
+
+        try{
+            t1.join();
+            t2.join();
+            t3.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        LOG.info("synchronizedBlock() after thread starts");
+        LOG.info("synchronizedBlock() count="+count);
 
     }
 }

@@ -3,7 +3,7 @@ package com.veerendra.biradar.multithreading.controller;
 
 import com.veerendra.biradar.log.AppLog;
 import com.veerendra.biradar.log.AppLogger;
-import com.veerendra.biradar.multithreading.service.MultithreadingServivce;
+import com.veerendra.biradar.multithreading.service.MultithreadingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +14,7 @@ public class MultithreadingController {
     AppLog LOG = AppLogger.getAppLog(MultithreadingController.class);
 
     @Autowired
-    MultithreadingServivce multithreadingServivce;
+    MultithreadingService multithreadingServivce;
 
     @GetMapping("/thread/workers")
     public void usersThreadExample(){
@@ -27,6 +27,13 @@ public class MultithreadingController {
     public void daemonThreadExample(){
 
         multithreadingServivce.daemonThread();
+
+    }
+
+    @GetMapping("/thread/synchronized")
+    public void syncronizedBlock(){
+
+        multithreadingServivce.synchronizedBlock();
 
     }
 
